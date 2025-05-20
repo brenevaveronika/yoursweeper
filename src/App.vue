@@ -1,30 +1,34 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Cell from "./components/Cell.vue";
+const field = [];
+for (let i = 0; i < 9; i++) {
+  field.push([]);
+  for (let j = 0; j < 9; j++) {
+    field[i].push({
+      state: 'hidden', // 'hidden' | 'revealed' | 'flagged'
+      value: null,     // null (пусто), -1 (мина), 1-8 (цифра)
+    });
+  }
+}
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <main class="bg-pink-100 min-h-dvh font-mono text-purple-900 p-10 flex flex-col justify-center items-center">
+    <h1 class="text-3xl"> Hello, Yoursweeper! </h1>
+    <div class="field p-4 inline-block">
+      <div v-for="(row, x) in field" :key="`row-${x}`" class="flex w-fit">
+        <Cell
+            v-for="(cell, y) in row"
+            :key="`cell-${x}-${y}`"
+            :x="x"
+            :y="y"
+            :value="cell.value"
+            :state="cell.state"
+        />
+      </div>
+    </div>
+  </main>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 </style>
