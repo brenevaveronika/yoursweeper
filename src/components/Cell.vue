@@ -1,6 +1,6 @@
 <template>
   <button
-      class="w-6 h-6 md:w-8 md:h-8 border flex items-center justify-center m-0.5 rounded-md"
+      class="w-6 h-6 md:w-8 md:h-8 border flex items-center justify-center m-0.5 rounded-md hover:bg-gray-950 duration-300 cursor-pointer"
       :class="{
       'bg-purple-900': state === 'hidden',
       'bg-pink-100': state === 'revealed',
@@ -14,23 +14,26 @@
   </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref} from "vue";
 
-const props = defineProps({
-  x: Number,
-  y: Number,
-  value: Number,
-  state: String
-});
+interface Props {
+  x: number;
+  y: number;
+  value: number | null;
+  state: 'hidden' | 'revealed' | 'flagged' | 'question';
+}
 
-const emit = defineEmits(['click', 'right-click']);
+const props = defineProps<Props>();
 
-const handleClick = () => {
-  emit('click', props.x, props.y);
-};
+const emit = defineEmits<{
+  (e: 'click', x: number, y: number): void;
+  (e: 'right-click', x: number, y: number): void;
+}>();
 
-const handleRightClick = () => {
+const handleClick = () => emit('click', props.x, props.y);
+const handleRightClick = (e: Event) => {
+  e.preventDefault();
   emit('right-click', props.x, props.y);
 };
 
