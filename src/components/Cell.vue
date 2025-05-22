@@ -44,10 +44,10 @@
     'flex items-center justify-center m-0.5 rounded-sm duration-300',
     'cursor-pointer select-none',
     {
-      'bg-pink-300': props.state === 'hidden',
+      'bg-pink-200': props.state === 'hidden',
       'bg-pink-400': props.state === 'revealed',
       'bg-red-200': props.state === 'revealed' && props.value === -1,
-      'hover:bg-pink-600 hover:border-pink-600': props.state === 'hidden'
+      'active:bg-pink-600 active:border-pink-600': props.state === 'hidden'
     }
   ]);
 </script>
