@@ -35,6 +35,8 @@ export const useGameStore = defineStore('game', () => {
 
   // actions
   function initField() {
+    if (field.value.length > 0) return;
+
     const newField = [];
     for (let i = 0; i < 9; i++) {
       newField.push([]);
@@ -235,6 +237,7 @@ export const useGameStore = defineStore('game', () => {
     timeElapsed.value = 0;
     flagsCount.value = 0;
     field.value = [];
+    initField();
   }
 
   return {
