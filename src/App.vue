@@ -1,6 +1,6 @@
 <script setup>
   import Cell from './components/Cell.vue';
-  import IconWin from './components/icons/IconWin.vue';
+  import GameHeader from './components/GameHeader.vue';
   const field = [];
   for (let i = 0; i < 9; i++) {
     field.push([]);
@@ -16,17 +16,7 @@
 <template>
   <main class="bg-pink-100 min-h-dvh p-10 flex flex-col justify-center items-center">
     <div class="game border-2 border-pink-500 rounded-md p-4">
-      <div class="game-header flex justify-between items-center mb-4">
-        <div
-          class="status-badge flex px-2 py-1 bg-purple-300 rounded-sm border-2 border-purple-500 font-bold text-purple-600 font-mono"
-        >
-          10
-        </div>
-        <div class="emoji p-2">
-          <IconWin />
-        </div>
-        <div class="timer font-mono text-purple-600 font-bold">0:00</div>
-      </div>
+      <GameHeader />
 
       <div class="field inline-block">
         <div v-for="(row, x) in field" :key="`row-${x}`" class="flex w-fit">
