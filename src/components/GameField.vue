@@ -1,5 +1,5 @@
 <script setup>
-  import Cell from './Cell.vue';
+  import GameCell from './GameCell.vue';
   import { useGameStore } from '../stores/useGameStore.ts';
   import { onMounted } from 'vue';
 
@@ -14,7 +14,7 @@
 
 <template v-if="game.field.length > 0">
   <div v-for="(row, x) in game.field" :key="`row-${x}`" class="flex">
-    <Cell
+    <GameCell
       v-for="(cell, y) in row"
       :key="`cell-${x}-${y}`"
       :x="x"

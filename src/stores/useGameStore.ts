@@ -7,19 +7,27 @@ interface Cell {
   value: number | null;
 }
 
+type GameLevel = 'beginner' | 'intermediate' | 'expert';
+const LEVEL_SETTINGS = {
+  beginner: { rows: 8, cols: 8, mines: 10 },
+  intermediate: { rows: 10, cols: 10, mines: 15 },
+  expert: { rows: 16, cols: 16, mines: 40 }
+};
+
 export const useGameStore = defineStore('game', () => {
   // константы туть
-  const ROWS = 9;
-  const COLS = 9;
-  const TOTAL_MINES = 9;
+  const rows = ref(LEVEL_SETTINGS.beginner.rows);
+  const cols = ref(LEVEL_SETTINGS.beginner.cols);
+  const totalMines = ref(LEVEL_SETTINGS.beginner.mines);
 
   // states
   const field = ref<Cell[][]>([]);
   const gameState = ref<'idle' | 'playing' | 'win' | 'lose'>('idle');
-  const minesCount = ref(TOTAL_MINES);
+  const minesCount = ref(10);
   const flagsCount = ref(0);
   const timeElapsed = ref(0);
   const timerInterval = ref<NodeJS.Timeout | null>(null);
+  const currentLevel = ref<GameLevel>('beginner');
 
   // getters
   const remainingMines = computed(() => {
@@ -38,9 +46,9 @@ export const useGameStore = defineStore('game', () => {
     if (field.value.length > 0) return;
 
     const newField = [];
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < rows.value; i++) {
       newField.push([]);
-      for (let j = 0; j < 9; j++) {
+      for (let j = 0; j < cols.value; j++) {
         newField[i].push({
           state: 'hidden',
           value: null
@@ -53,17 +61,17 @@ export const useGameStore = defineStore('game', () => {
   function generateField(): Cell[][] {
     const newField: Cell[][] = [];
 
-    for (let i = 0; i < ROWS; i++) {
+    for (let i = 0; i < rows.value; i++) {
       newField.push([]);
-      for (let j = 0; j < COLS; j++) {
+      for (let j = 0; j < cols.value; j++) {
         newField[i].push({ state: 'hidden', value: null });
       }
     }
 
     let minesPlaced = 0;
-    while (minesPlaced < TOTAL_MINES) {
-      const x = Math.floor(Math.random() * ROWS);
-      const y = Math.floor(Math.random() * COLS);
+    while (minesPlaced < totalMines) {
+      const x = Math.floor(Math.random() * rows.value);
+      const y = Math.floor(Math.random() * cols.value);
 
       if (newField[x][y].value !== -1) {
         newField[x][y].value = -1;
@@ -71,8 +79,8 @@ export const useGameStore = defineStore('game', () => {
       }
     }
 
-    for (let x = 0; x < ROWS; x++) {
-      for (let y = 0; y < COLS; y++) {
+    for (let x = 0; x < rows.value; x++) {
+      for (let y = 0; y < cols.value; y++) {
         if (newField[x][y].value !== -1) {
           newField[x][y].value = countNeighbours(x, y, newField);
         }
@@ -89,12 +97,22 @@ export const useGameStore = defineStore('game', () => {
         if (dx === 0 && dy === 0) continue;
         const nx = x + dx;
         const ny = y + dy;
-        if (nx >= 0 && nx < ROWS && ny >= 0 && ny < COLS) {
+        if (nx >= 0 && nx < rows.value && ny >= 0 && ny < cols.value) {
           if (field[nx][ny].value === -1) count++;
         }
       }
     }
     return count;
+  }
+
+  function setLevel(level: GameLevel) {
+    currentLevel.value = level;
+    const settings = LEVEL_SETTINGS[level];
+    rows.value = settings.rows;
+    cols.value = settings.cols;
+    totalMines.value = settings.mines;
+    minesCount.value = settings.mines;
+    resetGame();
   }
 
   function startGame(firstClickX: number, firstClickY: number) {
@@ -147,7 +165,7 @@ export const useGameStore = defineStore('game', () => {
       const nx = x + dx;
       const ny = y + dy;
 
-      if (nx >= 0 && nx < ROWS && ny >= 0 && ny < COLS) {
+      if (nx >= 0 && nx < rows && ny >= 0 && ny < cols) {
         if (field.value[nx][ny].state === 'hidden') {
           field.value[nx][ny].state = 'revealed';
 
@@ -176,8 +194,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function revealAllMines() {
-    for (let x = 0; x < ROWS; x++) {
-      for (let y = 0; y < COLS; y++) {
+    for (let x = 0; x < rows; x++) {
+      for (let y = 0; y < cols; y++) {
         if (field.value[x][y].value === -1) {
           field.value[x][y].state = 'revealed';
         }
@@ -212,8 +230,8 @@ export const useGameStore = defineStore('game', () => {
     let allNonMinesRevealed = true;
     let allMinesFlagged = true;
 
-    for (let x = 0; x < ROWS; x++) {
-      for (let y = 0; y < COLS; y++) {
+    for (let x = 0; x < rows; x++) {
+      for (let y = 0; y < cols; y++) {
         const cell = field.value[x][y];
 
         if (cell.value !== -1 && cell.state !== 'revealed') {
@@ -248,11 +266,16 @@ export const useGameStore = defineStore('game', () => {
     timeElapsed,
     remainingMines,
     formattedTime,
+    currentLevel,
+    rows,
+    cols,
+    totalMines,
     initField,
     generateField,
     openCell,
     toggleCellMark,
     resetGame,
-    startGame
+    startGame,
+    setLevel
   };
 });
