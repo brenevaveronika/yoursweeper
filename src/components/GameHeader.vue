@@ -3,7 +3,7 @@
   import IconSmile from './icons/IconSmile.vue';
   import IconLose from './icons/IconLose.vue';
 
-  import { useGameStore } from '../stores/useGameStore.js';
+  import { useGameStore } from '../stores/useGameStore.ts';
 
   const game = useGameStore();
 </script>
@@ -17,12 +17,11 @@
     </div>
     <button
       @click="game.resetGame()"
-      class="emoji-button p-2 hover:scale-110 transition-transform duration-200"
+      class="emoji-button p-2 active:scale-95 hover:scale-110 transition-transform duration-200"
       aria-label="Restart game"
     >
       <component
         :is="game.gameState === 'win' ? IconWin : game.gameState === 'lose' ? IconLose : IconSmile"
-        class="w-8 h-8"
       />
     </button>
     <div class="timer font-mono text-purple-600 font-bold">

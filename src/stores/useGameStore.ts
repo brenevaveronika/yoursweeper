@@ -34,6 +34,20 @@ export const useGameStore = defineStore('game', () => {
   });
 
   // actions
+  function initField() {
+    const newField = [];
+    for (let i = 0; i < 9; i++) {
+      newField.push([]);
+      for (let j = 0; j < 9; j++) {
+        newField[i].push({
+          state: 'hidden',
+          value: null
+        });
+      }
+    }
+    field.value = newField;
+  }
+
   function generateField(): Cell[][] {
     const newField: Cell[][] = [];
 
@@ -231,6 +245,7 @@ export const useGameStore = defineStore('game', () => {
     timeElapsed,
     remainingMines,
     formattedTime,
+    initField,
     generateField,
     openCell,
     toggleCellMark,
