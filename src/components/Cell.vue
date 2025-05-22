@@ -5,8 +5,8 @@
     @click="handleLeftClick"
     @contextmenu.prevent="handleRightClick"
   >
-    <span v-if="state === 'flagged'">🚩</span>
-    <span v-else-if="state === 'question'">❓</span>
+    <span v-if="state === 'flagged'">💋</span>
+    <span v-else-if="state === 'question'">💅🏻</span>
     <span v-else-if="state === 'revealed' && value === -1">💣</span>
     <span v-else-if="state === 'revealed' && value > 0">{{ value }}</span>
   </button>
@@ -45,7 +45,7 @@
     'cursor-pointer select-none',
     {
       'bg-pink-300': props.state === 'hidden',
-      'bg-pink-500': props.state === 'revealed',
+      'bg-pink-400': props.state === 'revealed',
       'bg-red-200': props.state === 'revealed' && props.value === -1,
       'hover:bg-pink-600 hover:border-pink-600': props.state === 'hidden'
     }
