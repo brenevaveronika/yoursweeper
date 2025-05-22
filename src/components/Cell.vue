@@ -40,7 +40,7 @@
   };
 
   const cellClasses = computed(() => [
-    'text-pink-300 font-mono font-bold w-6 h-6 md:w-8 md:h-8 border-pink-400 border-2',
+    'text-pink-300 font-mono font-bold w-7 h-7 md:w-8 md:h-8 border-pink-400 border-2',
     'flex items-center justify-center m-0.5 rounded-sm duration-300',
     'cursor-pointer select-none',
     {
