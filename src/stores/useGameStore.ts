@@ -10,28 +10,26 @@ interface Cell {
 type GameLevel = 'beginner' | 'intermediate' | 'expert';
 const LEVEL_SETTINGS = {
   beginner: { rows: 8, cols: 8, mines: 10 },
-  intermediate: { rows: 10, cols: 10, mines: 15 },
-  expert: { rows: 16, cols: 16, mines: 40 }
+  intermediate: { rows: 9, cols: 9, mines: 15 },
+  expert: { rows: 10, cols: 10, mines: 20 }
 };
 
 export const useGameStore = defineStore('game', () => {
-  // константы туть
+  // states
   const rows = ref(LEVEL_SETTINGS.beginner.rows);
   const cols = ref(LEVEL_SETTINGS.beginner.cols);
   const totalMines = ref(LEVEL_SETTINGS.beginner.mines);
+  const currentLevel = ref<GameLevel>('beginner');
 
-  // states
   const field = ref<Cell[][]>([]);
   const gameState = ref<'idle' | 'playing' | 'win' | 'lose'>('idle');
-  const minesCount = ref(10);
   const flagsCount = ref(0);
   const timeElapsed = ref(0);
   const timerInterval = ref<NodeJS.Timeout | null>(null);
-  const currentLevel = ref<GameLevel>('beginner');
 
   // getters
   const remainingMines = computed(() => {
-    const remaining = minesCount.value - flagsCount.value;
+    const remaining = totalMines.value - flagsCount.value;
     return remaining >= 0 ? remaining : 0;
   });
 
@@ -42,54 +40,38 @@ export const useGameStore = defineStore('game', () => {
   });
 
   // actions
-  function initField() {
-    if (field.value.length > 0) return;
 
-    const newField = [];
-    for (let i = 0; i < rows.value; i++) {
-      newField.push([]);
-      for (let j = 0; j < cols.value; j++) {
-        newField[i].push({
-          state: 'hidden',
-          value: null
-        });
-      }
-    }
-    field.value = newField;
-  }
+  // инициализация поля (пустой field нужных размеров)
+  const initField = () => {
+    field.value = Array.from({ length: rows.value }, () =>
+      Array.from({ length: cols.value }, () => ({ state: 'hidden', value: null }))
+    );
+  };
 
-  function generateField(): Cell[][] {
-    const newField: Cell[][] = [];
-
-    for (let i = 0; i < rows.value; i++) {
-      newField.push([]);
-      for (let j = 0; j < cols.value; j++) {
-        newField[i].push({ state: 'hidden', value: null });
-      }
-    }
+  const generateField = () => {
+    initField();
 
     let minesPlaced = 0;
-    while (minesPlaced < totalMines) {
+    while (minesPlaced < totalMines.value) {
       const x = Math.floor(Math.random() * rows.value);
       const y = Math.floor(Math.random() * cols.value);
 
-      if (newField[x][y].value !== -1) {
-        newField[x][y].value = -1;
+      if (field.value[x][y].value !== -1) {
+        field.value[x][y].value = -1;
         minesPlaced++;
       }
     }
 
-    for (let x = 0; x < rows.value; x++) {
-      for (let y = 0; y < cols.value; y++) {
-        if (newField[x][y].value !== -1) {
-          newField[x][y].value = countNeighbours(x, y, newField);
+    field.value.forEach((row, x) =>
+      row.forEach((cell, y) => {
+        if (cell.value !== -1) {
+          cell.value = countNeighbours(x, y, field.value);
         }
-      }
-    }
+      })
+    );
+  };
 
-    return newField;
-  }
-
+  // подсчет мин в соседних полях
   function countNeighbours(x: number, y: number, field: Cell[][]): number {
     let count = 0;
     for (let dx = -1; dx <= 1; dx++) {
@@ -105,52 +87,46 @@ export const useGameStore = defineStore('game', () => {
     return count;
   }
 
+  // установщик уровня
   function setLevel(level: GameLevel) {
-    currentLevel.value = level;
     const settings = LEVEL_SETTINGS[level];
     rows.value = settings.rows;
     cols.value = settings.cols;
     totalMines.value = settings.mines;
-    minesCount.value = settings.mines;
+    currentLevel.value = level;
     resetGame();
   }
 
-  function startGame(firstClickX: number, firstClickY: number) {
+  // старт игры + обработка первого клика
+  const startGame = (firstClickX: number, firstClickY: number) => {
+    resetGame();
+    gameState.value = 'playing';
+
     do {
-      field.value = generateField();
+      generateField();
     } while (field.value[firstClickX][firstClickY].value === -1);
 
-    gameState.value = 'playing';
     startTimer();
     openCell(firstClickX, firstClickY);
-  }
+  };
 
-  function openCell(x: number, y: number) {
-    if (gameState.value === 'idle') {
-      startGame(x, y);
-      return;
-    }
-
+  const openCell = (x: number, y: number) => {
     if (gameState.value !== 'playing' || field.value[x][y].state !== 'hidden') {
+      startGame(x, y);
       return;
     }
 
     field.value[x][y].state = 'revealed';
 
-    if (field.value[x][y].value === -1) {
-      gameOver(false);
-      return;
-    }
-
-    if (field.value[x][y].value === 0) {
-      openNeighbors(x, y);
-    }
+    if (field.value[x][y].value === -1) return gameOver(false);
+    if (field.value[x][y].value === 0) openNeighbors(x, y);
 
     checkWin();
-  }
+  };
 
-  function openNeighbors(x: number, y: number) {
-    const directions = [
+  // открытие соседей
+  const openNeighbors = (x: number, y: number) => {
+    [
       [-1, -1],
       [-1, 0],
       [-1, 1],
@@ -159,24 +135,23 @@ export const useGameStore = defineStore('game', () => {
       [1, -1],
       [1, 0],
       [1, 1]
-    ];
-
-    for (const [dx, dy] of directions) {
-      const nx = x + dx;
-      const ny = y + dy;
-
-      if (nx >= 0 && nx < rows && ny >= 0 && ny < cols) {
-        if (field.value[nx][ny].state === 'hidden') {
-          field.value[nx][ny].state = 'revealed';
-
-          if (field.value[nx][ny].value === 0) {
-            openNeighbors(nx, ny);
-          }
-        }
+    ].forEach(([dx, dy]) => {
+      const nx = x + dx,
+        ny = y + dy;
+      if (
+        nx >= 0 &&
+        nx < rows.value &&
+        ny >= 0 &&
+        ny < cols.value &&
+        field.value[nx][ny].state === 'hidden'
+      ) {
+        field.value[nx][ny].state = 'revealed';
+        if (field.value[nx][ny].value === 0) openNeighbors(nx, ny);
       }
-    }
-  }
+    });
+  };
 
+  // цикл flagged - question - hidden
   function toggleCellMark(x: number, y: number) {
     const cell = field.value[x][y];
 
@@ -190,12 +165,13 @@ export const useGameStore = defineStore('game', () => {
       cell.state = 'hidden';
     }
 
-    checkWin(); // Проверяем победу после изменения пометки
+    checkWin();
   }
 
+  // открывает все мины
   function revealAllMines() {
-    for (let x = 0; x < rows; x++) {
-      for (let y = 0; y < cols; y++) {
+    for (let x = 0; x < rows.value; x++) {
+      for (let y = 0; y < cols.value; y++) {
         if (field.value[x][y].value === -1) {
           field.value[x][y].state = 'revealed';
         }
@@ -203,6 +179,7 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  // старт таймера
   function startTimer() {
     timeElapsed.value = 0;
     timerInterval.value = setInterval(() => {
@@ -210,6 +187,7 @@ export const useGameStore = defineStore('game', () => {
     }, 1000);
   }
 
+  // остановка таймера
   function stopTimer() {
     if (timerInterval.value) {
       clearInterval(timerInterval.value);
@@ -217,6 +195,7 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  // конец игры
   function gameOver(isWin: boolean) {
     stopTimer();
     gameState.value = isWin ? 'win' : 'lose';
@@ -226,42 +205,42 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  // проверка на победу
   function checkWin() {
-    let allNonMinesRevealed = true;
-    let allMinesFlagged = true;
+    let allCorrect = true;
 
-    for (let x = 0; x < rows; x++) {
-      for (let y = 0; y < cols; y++) {
+    for (let x = 0; x < rows.value; x++) {
+      for (let y = 0; y < cols.value; y++) {
         const cell = field.value[x][y];
-
-        if (cell.value !== -1 && cell.state !== 'revealed') {
-          allNonMinesRevealed = false;
-        }
-
-        if (cell.value === -1 && cell.state !== 'flagged') {
-          allMinesFlagged = false;
+        if (
+          (cell.value === -1 && cell.state !== 'flagged') ||
+          (cell.value !== -1 && cell.state !== 'revealed')
+        ) {
+          allCorrect = false;
+          break;
         }
       }
+      if (!allCorrect) break;
     }
 
-    if (allNonMinesRevealed || allMinesFlagged) {
+    if (allCorrect) {
       gameOver(true);
     }
   }
 
+  // ресет игры
   function resetGame() {
     stopTimer();
     gameState.value = 'idle';
     timeElapsed.value = 0;
     flagsCount.value = 0;
     field.value = [];
-    initField();
+    generateField();
   }
 
   return {
     field,
     gameState,
-    minesCount,
     flagsCount,
     timeElapsed,
     remainingMines,

@@ -3,7 +3,6 @@
   import GameField from './components/GameField.vue';
   import { useGameStore } from './stores/useGameStore.ts';
   import { onMounted } from 'vue';
-  import LevelBadge from './components/LevelBadge.vue';
   import LevelSelector from './components/LevelSelector.vue';
   const game = useGameStore();
 

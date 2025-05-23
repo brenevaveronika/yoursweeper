@@ -6,8 +6,8 @@
 
   const levels = [
     { id: 'beginner', label: '', mines: 10, size: '8x8' },
-    { id: 'intermediate', label: '', mines: 15, size: '10x10' },
-    { id: 'expert', label: '', mines: 40, size: '16x16' }
+    { id: 'intermediate', label: '', mines: 15, size: '9x9' },
+    { id: 'expert', label: '', mines: 20, size: '10x10' }
   ];
 </script>
 
