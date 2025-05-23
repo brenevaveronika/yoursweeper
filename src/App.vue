@@ -23,7 +23,7 @@
       <p class="text-pink-500 mt-10">
         made by
         <a
-          class="hover:text-pink-950 transition duration-200 underline underline-offset-5"
+          class="hover:text-purple-600 transition duration-200 underline underline-offset-5"
           href="https://github.com/brenevaveronika"
           target="_blank"
           >@nikaginger</a
