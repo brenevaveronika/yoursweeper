@@ -97,6 +97,7 @@ export const useGameStore = defineStore('game', () => {
     resetGame();
   }
 
+  // TODO: исправить регенерацию по клику на уже открытую ячейку
   // старт игры + обработка первого клика
   const startGame = (firstClickX: number, firstClickY: number) => {
     resetGame();

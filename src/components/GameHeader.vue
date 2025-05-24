@@ -12,7 +12,7 @@
   <div class="game-header flex justify-between items-center mb-4">
     <div class="status min-w-24">
       <div
-        class="status-badge w-fit px-2 py-1 bg-purple-300 rounded-sm border-2 border-purple-500 font-bold text-purple-600 font-mono"
+        class="status-badge w-fit px-2 py-1 bg-purple-300 rounded-sm border md:border-2 border-purple-500 font-bold text-purple-600 font-mono"
       >
         <span v-if="game.gameState === 'win'"> YOU WIN! </span>
         <span v-else-if="game.gameState === 'lose'"> YOU LOSE </span>
