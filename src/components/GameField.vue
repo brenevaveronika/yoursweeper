@@ -21,7 +21,7 @@
       :y="y"
       :value="cell.value"
       :state="cell.state"
-      @left-click="game.openCell(x, y)"
+      @left-click="game.handleCellPress(x, y)"
       @right-click="game.toggleCellMark(x, y)"
     />
   </div>

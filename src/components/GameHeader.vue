@@ -28,6 +28,7 @@
         :is="game.gameState === 'win' ? IconWin : game.gameState === 'lose' ? IconLose : IconSmile"
       />
     </button>
+    <!-- TODO: добавить рекорд над таймером (из LocalStorage) -->
     <div class="timer min-w-24 text-end px-1 font-mono text-purple-600 font-bold">
       {{ game.formattedTime }}
     </div>

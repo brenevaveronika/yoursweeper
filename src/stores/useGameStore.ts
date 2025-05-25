@@ -97,7 +97,6 @@ export const useGameStore = defineStore('game', () => {
     resetGame();
   }
 
-  // TODO: исправить регенерацию по клику на уже открытую ячейку
   // старт игры + обработка первого клика
   const startGame = (firstClickX: number, firstClickY: number) => {
     if (gameState.value !== 'idle') return;
@@ -124,6 +123,14 @@ export const useGameStore = defineStore('game', () => {
     if (field.value[x][y].value === 0) openNeighbors(x, y);
 
     checkWin();
+  };
+
+  const handleCellPress = (x: number, y: number, isLongPress: boolean) => {
+    if (isLongPress) {
+      toggleCellMark(x, y); // Переключение между flagged/question/hidden
+    } else {
+      openCell(x, y); // Открытие клетки
+    }
   };
 
   // открытие соседей
@@ -244,6 +251,7 @@ export const useGameStore = defineStore('game', () => {
     rows,
     cols,
     totalMines,
+    handleCellPress,
     initField,
     generateField,
     openCell,
