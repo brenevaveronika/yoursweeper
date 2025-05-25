@@ -100,6 +100,7 @@ export const useGameStore = defineStore('game', () => {
   // TODO: исправить регенерацию по клику на уже открытую ячейку
   // старт игры + обработка первого клика
   const startGame = (firstClickX: number, firstClickY: number) => {
+    if (gameState.value !== 'idle') return;
     resetGame();
     gameState.value = 'playing';
 
@@ -208,25 +209,18 @@ export const useGameStore = defineStore('game', () => {
 
   // проверка на победу
   function checkWin() {
-    let allCorrect = true;
-
     for (let x = 0; x < rows.value; x++) {
       for (let y = 0; y < cols.value; y++) {
         const cell = field.value[x][y];
         if (
-          (cell.value === -1 && cell.state !== 'flagged') ||
-          (cell.value !== -1 && cell.state !== 'revealed')
+          (cell.value !== -1 && cell.state !== 'revealed') || // Все не-мины должны быть открыты
+          (cell.value === -1 && cell.state === 'revealed') // Мины не должны быть открыты
         ) {
-          allCorrect = false;
-          break;
+          return;
         }
       }
-      if (!allCorrect) break;
     }
-
-    if (allCorrect) {
-      gameOver(true);
-    }
+    gameOver(true); // Победа
   }
 
   // ресет игры
