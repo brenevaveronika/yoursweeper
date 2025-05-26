@@ -29,8 +29,13 @@
       />
     </button>
     <!-- TODO: добавить рекорд над таймером (из LocalStorage) -->
-    <div class="timer min-w-24 text-end px-1 font-mono text-purple-600 font-bold">
-      {{ game.formattedTime }}
+    <div class="timer-data">
+      <div class="record min-w-24 text-end px-1 font-mono text-purple-300 font-bold">
+        <span v-if="game.recordTime"> {{ game.formattedRecordTime }} </span>
+      </div>
+      <div class="timer min-w-24 text-end px-1 font-mono text-purple-600 font-bold">
+        {{ game.formattedTime }}
+      </div>
     </div>
   </div>
 </template>

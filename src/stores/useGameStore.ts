@@ -26,6 +26,7 @@ export const useGameStore = defineStore('game', () => {
   const flagsCount = ref(0);
   const timeElapsed = ref(0);
   const timerInterval = ref<NodeJS.Timeout | null>(null);
+  const recordTime = ref(0);
 
   // getters
   const remainingMines = computed(() => {
@@ -36,6 +37,12 @@ export const useGameStore = defineStore('game', () => {
   const formattedTime = computed(() => {
     const minutes = Math.floor(timeElapsed.value / 60);
     const seconds = timeElapsed.value % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  });
+
+  const formattedRecordTime = computed(() => {
+    const minutes = Math.floor(recordTime.value / 60);
+    const seconds = recordTime.value % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
@@ -94,6 +101,7 @@ export const useGameStore = defineStore('game', () => {
     cols.value = settings.cols;
     totalMines.value = settings.mines;
     currentLevel.value = level;
+    loadRecord(level);
     resetGame();
   }
 
@@ -204,6 +212,23 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  // сохранение рекорда в LocalStorage
+  function saveRecord(level: GameLevel, time: number) {
+    const key = `record_${level}`;
+    const currentRecord = localStorage.getItem(key);
+    if (!currentRecord || time < parseInt(currentRecord, 10)) {
+      localStorage.setItem(key, time.toString());
+      recordTime.value = time; // Обновляем локальное состояние
+    }
+  }
+
+  // загрузка рекорда из LocalStorage
+  function loadRecord(level: GameLevel) {
+    const key = `record_${level}`;
+    const savedRecord = localStorage.getItem(key);
+    recordTime.value = savedRecord ? parseInt(savedRecord, 10) : 0;
+  }
+
   // конец игры
   function gameOver(isWin: boolean) {
     stopTimer();
@@ -211,6 +236,8 @@ export const useGameStore = defineStore('game', () => {
 
     if (!isWin) {
       revealAllMines();
+    } else {
+      saveRecord(currentLevel.value, timeElapsed.value); // Сохранение рекорда при победе
     }
   }
 
@@ -245,8 +272,10 @@ export const useGameStore = defineStore('game', () => {
     gameState,
     flagsCount,
     timeElapsed,
+    recordTime,
     remainingMines,
     formattedTime,
+    formattedRecordTime,
     currentLevel,
     rows,
     cols,
